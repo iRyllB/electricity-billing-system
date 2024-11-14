@@ -1,17 +1,24 @@
-# billing_system.py
+import datetime
 
-class ElectricityBillingSystem:
-    def __init__(self, rate_per_kWh):
-        self.rate_per_kWh = rate_per_kWh
+rates = {
+    "Monday": 11.43,   
+    "Tuesday": 10.50,   
+    "Wednesday": 12.00, 
+    "Thursday": 11.80,  
+    "Friday": 13.25,    
+    "Saturday": 14.00, 
+    "Sunday": 11.00    
+}
 
-    def calculate_bill(self, customer_name, units_consumed):
-        bill_amount = units_consumed * self.rate_per_kWh
-        return f"Customer: {customer_name}\nUnits Consumed: {units_consumed} kWh\nBill Amount: ${bill_amount:.2f}"
+today = datetime.datetime.now().strftime('%A')  #full weekday name
+rate_today = rates.get(today, 11.43)  # Default to 11.43 pesos if day is not found
 
-# Example Usage
-if __name__ == "__main__":
-    rate = 0.12  # example rate per kWh
-    billing_system = ElectricityBillingSystem(rate)
-    customer_name = input("Enter customer name: ")
-    units = float(input("Enter units consumed (kWh): "))
-    print(billing_system.calculate_bill(customer_name, units))
+customer_name = input("Enter customer name: ")
+units_consumed = float(input("Enter units consumed (kWh): "))
+
+bill_amount = units_consumed * rate_today
+
+print(f"\nCustomer: {customer_name}")
+print(f"Units Consumed: {units_consumed} kWh")
+print(f"Rate: {rate_today} pesos/kWh")
+print(f"Bill Amount: {bill_amount:.2f} pesos")
