@@ -141,28 +141,28 @@ while True:
         try:
             # Get user details
             f_name = input("Enter your name (this will be your Consumer Name): ")
-            units = int(input("Enter the units consumed: "))  # Number of units consumed by the consumer
+            units = int(input("Enter the units consumed: ")) 
             
             # Calculate the total bill based on units consumed
             total_bill = units * billrate
             
-            # Display the bill amount to be paid
+            #PAYMENT OVERVIEW
             print(f"\n--- Bill Calculation ---")
             print(f"Name: {f_name}")
             print(f"Units Consumed: {units} units")
             print(f"Bill Rate: {billrate} per unit")
             print(f"Total Bill: {total_bill:.2f}")
             
-            # Ask the user to confirm payment
+            #PAYMENT CONFIRMATION
             while True:
                 payment = input("Do you wish to proceed with the payment? (yes/no): ").lower()
                 if payment == 'yes':
-                    # Insert the bill data into the database, assuming `account_no` is part of the user data
+    
                     SQL_insert = "INSERT INTO consumer_details (account_no, f_name, units, bill, phone_no, address) VALUES (%s, %s, %s, %s, %s, %s)"
                     mycursor.execute(SQL_insert, (user_data[0], f_name, units, total_bill, user_data[3], user_data[4]))
                     conn.commit()
                     
-                    # Display receipt after payment
+                    #RECIPET
                     print(f"\n--- Payment Receipt ---")
                     print(f"Consumer Name: {f_name}")
                     print(f"Units Consumed: {units} units")
@@ -187,7 +187,6 @@ while True:
             message = input("Optional: Please enter a message (or press Enter to skip): ")
 
             if 1 <= rating <= 10:
-                # Insert rating and message into the database
                 SQL_insert = "INSERT INTO service_ratings (rating, message) VALUES (%s, %s)"
                 mycursor.execute(SQL_insert, (rating, message))
                 conn.commit()
@@ -197,7 +196,7 @@ while True:
         except ValueError:
             print("Invalid input. Please enter a numeric rating.")
 
-    # Main Program Loop
+    #MAIN PROGRAM LOOP
 
     print("\n1. CREATE YOUR ACCOUNT")
     print("2. LOG IN")
