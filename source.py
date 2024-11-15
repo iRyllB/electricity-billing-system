@@ -10,12 +10,12 @@ try:
 except Error as e:
     print(f"Error connecting to database: {e}")
     exit()
-    #wew test
 
 print("Welcome to USTP OmniCharge CDO")
 
 #########################################################################################################################
 while True:
+    #CREATE ACCOUNT
     def create_account():
         cust_name = input("Enter the consumer name: ")
         
@@ -41,13 +41,14 @@ while True:
         except Error as e:
             print(f"Error creating account: {e}")
 
+    #lLOGIN
     def log_in():
         print("\nEnter your Credentials")
         cust_name = input("Enter your name: ")
 
         while True:
             try:
-                account_no = int(input("Enter your User ID given by the electricity board: "))
+                account_no = int(input("Enter your User ID given by company: "))
                 break
             except ValueError:
                 print("Invalid input. Please enter a numeric value for User ID.")
@@ -70,7 +71,7 @@ while True:
                 print("Invalid Credentials, please try again.")
         except Error as e:
             print(f"Error logging in: {e}")
-
+    #DASHBOARD
     def user_dashboard():
         while True:
             print("""
@@ -100,7 +101,7 @@ while True:
                     print("Invalid choice, please try again.")
             except ValueError:
                 print("Invalid input. Please enter a number between 1 and 6.")
-
+    #EMPLOYEES
     def show_employees():
         try:
             mycursor.execute("SELECT * FROM Log_in")
@@ -136,21 +137,56 @@ while True:
             print(f"Error fetching consumer details: {e}")
 
     def pay_bill():
+        billrate = 11.42  # Cost per unit in the electricity bill
+        
         try:
-            f_name = input("Enter your name: ")
-            units = int(input("Enter the units consumed by the consumer: "))
-            bill = int(input("Enter the bill cost: "))
-            cust_name = input("Enter Consumer Name: ")
+            # Get user details
+            f_name = input("Enter your name (this will be your Consumer Name): ")
+            units = int(input("Enter the units consumed: "))  # Number of units consumed by the consumer
+            
+            # Calculate the total bill based on units consumed
+            total_bill = units * billrate
+            
+            # Get the consumer's phone number
             phone_no = int(input("Enter Consumer phone number: "))
-
-            SQL_insert = "INSERT INTO consumer_details (f_name, units, bill, cust_name, phone_no) VALUES (%s, %s, %s, %s, %s)"
-            mycursor.execute(SQL_insert, (f_name, units, bill, cust_name, phone_no))
-            conn.commit()
-            print("Bill recorded successfully.")
+            
+            # Display the bill amount to be paid
+            print(f"\n--- Bill Calculation ---")
+            print(f"Name: {f_name}")
+            print(f"Units Consumed: {units} units")
+            print(f"Bill Rate: {billrate} per unit")
+            print(f"Total Bill: {total_bill:.2f}")
+            
+            # Ask the user to confirm payment
+            while True:
+                payment = input("Do you wish to proceed with the payment? (yes/no): ").lower()
+                if payment == 'yes':
+                    # Insert the bill data into the database
+                    SQL_insert = "INSERT INTO consumer_details (f_name, units, bill, phone_no) VALUES (%s, %s, %s, %s)"
+                    mycursor.execute(SQL_insert, (f_name, units, total_bill, phone_no))
+                    conn.commit()
+                    
+                    # Display receipt after payment
+                    print(f"\n--- Payment Receipt ---")
+                    print(f"Consumer Name: {f_name}")
+                    print(f"Consumer Phone: {phone_no}")
+                    print(f"Units Consumed: {units} units")
+                    print(f"Bill Rate: {billrate} per unit")
+                    print(f"Total Amount Due: {total_bill:.2f}")
+                    print("Payment Successful! Thank you for using our service.\n")
+                    break
+                elif payment == 'no':
+                    print("Payment canceled. Returning to the main menu.")
+                    break
+                else:
+                    print("Invalid input. Please enter 'yes' or 'no'.")
+        
         except ValueError:
             print("Invalid input. Please enter numeric values for units, bill, and phone number.")
         except Error as e:
             print(f"Error recording bill: {e}")
+
+
 
     def rate_service():
         try:
