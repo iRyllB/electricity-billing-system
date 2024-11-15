@@ -10,6 +10,7 @@ try:
 except Error as e:
     print(f"Error connecting to database: {e}")
     exit()
+    #wew test
 
 print("Welcome to USTP OmniCharge CDO")
 
