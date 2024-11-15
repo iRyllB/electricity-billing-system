@@ -1,3 +1,4 @@
+import random
 import mysql.connector as sql
 from mysql.connector import Error
 
@@ -18,13 +19,7 @@ while True:
     #CREATE ACCOUNT
     def create_account():
         cust_name = input("Enter the consumer name: ")
-
-        while True:
-            try:
-                account_no = int(input("Enter your User ID given by the company: "))
-                break
-            except ValueError:
-                print("Invalid input. Please enter a numeric value for User ID.")
+        account_no = random.randint(1, 1001)  # Random Account Number
         
         while True:
             try:
@@ -39,10 +34,12 @@ while True:
                 break
             except ValueError:
                 print("Invalid input. Please enter a valid phone number.")
-
+        
+        address = input("Enter your address: ") 
+        
         try:
-            SQL_insert = "INSERT INTO Log_in (cust_name, account_no, password, phone_no) VALUES (%s, %s, %s, %s)"
-            mycursor.execute(SQL_insert, (cust_name, account_no, password, phone_no))
+            SQL_insert = "INSERT INTO log_in (account_no, cust_name, password, phone_no, address) VALUES (%s, %s, %s, %s, %s)"
+            mycursor.execute(SQL_insert, (account_no, cust_name, password, phone_no, address))
             conn.commit()
             print("Account Created Successfully")
         except Error as e:
@@ -55,20 +52,13 @@ while True:
 
         while True:
             try:
-                account_no = int(input("Enter your User ID given by company: "))
-                break
-            except ValueError:
-                print("Invalid input. Please enter a numeric value for User ID.")
-
-        while True:
-            try:
                 password = int(input("Enter your Passkey: "))
                 break
             except ValueError:
                 print("Invalid input. Please enter a numeric value for Passkey.")
         
         try:
-            mycursor.execute("SELECT * FROM Log_in WHERE cust_name = %s AND account_no = %s AND password = %s", (cust_name, account_no, password))
+            mycursor.execute("SELECT * FROM log_in WHERE cust_name = %s AND password = %s", (cust_name, password))
             user_data = mycursor.fetchone()
             
             if user_data:
@@ -85,8 +75,9 @@ while True:
             print("""
             TO SEE your details, press              : 1
             TO PAY the bill, press                   : 2
-            TO EXIT, press                           : 3
-            TO RATE US, press                        : 4
+            TO UPDATE your details, press            : 3
+            TO EXIT, press                           : 4
+            TO RATE US, press                        : 5
             """)
             try:
                 choice = int(input("Enter your choice: "))
@@ -95,37 +86,54 @@ while True:
                 elif choice == 2:
                     pay_bill(user_data)
                 elif choice == 3:
+                    update_details(user_data)
+                elif choice == 4:
                     print("Thank you for visiting.")
                     break
-                elif choice == 4:
+                elif choice == 5:
                     rate_service()
                 else:
                     print("Invalid choice, please try again.")
             except ValueError:
-                print("Invalid input. Please enter a number between 1 and 4.")
+                print("Invalid input. Please enter a number between 1 and 5.")
 
     def show_consumer_details(user_data):
         try:
             # Display personal information
             print("\n--- Consumer Details ---")
-            print(f"Name: {user_data[0]}")
-            print(f"Customer ID: {user_data[1]}")
-            print(f"Phone Number: {user_data[3]}")  # user_data[3] should contain phone number
+            
+            print(f"Name: {user_data[1]}")
+            print(f"Customer ID: {user_data[0]}")
+            print(f"Phone Number: {user_data[3]}")  # user_data[3] contains phone number
+            print(f"Address: {user_data[4]}")  # user_data[4] contains address
             
             # Fetch payment history
-            mycursor.execute("SELECT * FROM consumer_details WHERE account_no = %s", (user_data[1],))
+            mycursor.execute("SELECT * FROM consumer_details WHERE account_no = %s", (user_data[0],))
             payment_history = mycursor.fetchall()
 
             if payment_history:
                 print("\n--- Payment History ---")
                 for payment in payment_history:
-                    print(f"Units Consumed: {payment[1]}, Bill Amount: {payment[3]:.2f}, Date: {payment[4]}")
+                    print(f"Units Consumed: {payment[2]}, Bill Amount: {payment[4]:.2f}, Date: {payment[5]}")
             else:
                 print("No payment history found.")
                 
             print("\nVisit again!")
         except Error as e:
             print(f"Error fetching consumer details: {e}")
+
+    def update_details(user_data):
+        print("\nUpdate Your Details")
+        new_phone = input("Enter your new phone number: ")
+        new_address = input("Enter your new address: ")
+        
+        try:
+            SQL_update = "UPDATE log_in SET phone_no = %s, address = %s WHERE account_no = %s"
+            mycursor.execute(SQL_update, (new_phone, new_address, user_data[0]))
+            conn.commit()
+            print("Details Updated Successfully!")
+        except Error as e:
+            print(f"Error updating details: {e}")
 
     def pay_bill(user_data):
         billrate = 11.42  # Cost per unit in the electricity bill
@@ -150,8 +158,8 @@ while True:
                 payment = input("Do you wish to proceed with the payment? (yes/no): ").lower()
                 if payment == 'yes':
                     # Insert the bill data into the database, assuming `account_no` is part of the user data
-                    SQL_insert = "INSERT INTO consumer_details (account_no, f_name, units, bill, phone_no) VALUES (%s, %s, %s, %s, %s)"
-                    mycursor.execute(SQL_insert, (user_data[1], f_name, units, total_bill, user_data[3]))
+                    SQL_insert = "INSERT INTO consumer_details (account_no, f_name, units, bill, phone_no, address) VALUES (%s, %s, %s, %s, %s, %s)"
+                    mycursor.execute(SQL_insert, (user_data[0], f_name, units, total_bill, user_data[3], user_data[4]))
                     conn.commit()
                     
                     # Display receipt after payment
@@ -176,8 +184,14 @@ while True:
     def rate_service():
         try:
             rating = int(input("On a scale of 1 to 10, how would you rate us: "))
+            message = input("Optional: Please enter a message (or press Enter to skip): ")
+
             if 1 <= rating <= 10:
-                print("Thank you for your rating!")
+                # Insert rating and message into the database
+                SQL_insert = "INSERT INTO service_ratings (rating, message) VALUES (%s, %s)"
+                mycursor.execute(SQL_insert, (rating, message))
+                conn.commit()
+                print("Thank you for your rating and feedback!")
             else:
                 print("Please enter a rating between 1 and 10.")
         except ValueError:
@@ -196,6 +210,7 @@ while True:
             log_in()
         elif choice == 3:
             print("Thank you for visiting!")
+            break
         else:
             print("Invalid Choice, Please try again.")
     except ValueError:

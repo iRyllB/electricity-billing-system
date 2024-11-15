@@ -1,24 +1,18 @@
+import random
+import mysql.connector as sql
+from mysql.connector import Error
+
+# DATABASE CONNECTION, DO NOT MODIFY
+try:
+    conn = sql.connect(host="localhost", user="root", passwd="2115200511", database="electricity_data1")
+    mycursor = conn.cursor()
+    if conn.is_connected():
+        print("Connection With Database Established Successfully")
+except Error as e:
+    print(f"Error connecting to database: {e}")
+    exit()
+
 print("Welcome to USTP OmniCharge CDO")
 
-#CREATE ACCOUNT FUNCTION
-def create_account():
-    while True:
-        cust_name = input("Enter the consumer name: ")
-    
+#########################################################################################################################
 
-#MAIN
-print("\n1. CREATE YOUR ACCOUNT")
-print("2. LOG IN")
-print("3. EXIT")
-try:
-    choice = int(input("ENTER YOUR CHOICE: "))
-    if choice == 1:
-        create_account()
-    elif choice == 2:
-        log_in()
-    elif choice == 3:
-        print("Thank you for visiting!")
-    else:
-        print("Invalid Choice, Please try again.")
-except ValueError:
-    print("Invalid input. Please enter a number between 1 and 3.")
