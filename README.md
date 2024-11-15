@@ -9,6 +9,7 @@ A simple Python-based application to calculate electricity bills based on custom
 - [Usage](#usage)
 - [Example](#example)
 - [License](#license)
+- [PROBLEMS](problems.md)
 
 ## Features
 - Allows users to input customer information and electricity usage.

@@ -1,19 +1,46 @@
 import mysql.connector as sql
+#DATABASE NEEDS UPDATING#################################################################################3
 conn = sql.connect(
-  host="localhost",
-  user="root",
-  password="2115200511"
+    host="localhost",
+    user="root",
+    password="2115200511"
 )
 
 if conn.is_connected():
-    print("sucessfully connected")
+    print("Successfully connected to the database")
 
-conn.cursor().execute("CREATE DATABASE electricity_data1")
-print("Database Successfully Created")
-conn.cursor().execute("USE electricity_data1")
-conn.cursor().execute('create table log_in(cust_name  varchar(65), account_no  int, password int)')
-print("Log_in_table created")
-conn.cursor().execute('create table consumer_details(f_name varchar(65),units int,bill int,cust_name varchar(65), phone_no bigint)')
-print("Consumer_details created")
+cursor = conn.cursor()
+cursor.execute("CREATE DATABASE IF NOT EXISTS electricity_data1")
+print("Database 'electricity_data1' created or already exists")
+
+cursor.execute("USE electricity_data1")
+
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS log_in (
+        account_no INT PRIMARY KEY,
+        cust_name VARCHAR(65),
+        password INT,
+        phone_no BIGINT
+    )
+''')
+print("log_in table created")
+
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS consumer_details (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        account_no INT,
+        f_name VARCHAR(65),
+        units INT,
+        bill DECIMAL(10, 2),
+        phone_no BIGINT,
+        payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (account_no) REFERENCES log_in(account_no)
+    )
+''')
+print("consumer_details table created")
+
 conn.commit()
+
+conn.close()
+
 print("DONE")

@@ -18,7 +18,7 @@ while True:
     #CREATE ACCOUNT
     def create_account():
         cust_name = input("Enter the consumer name: ")
-        
+
         while True:
             try:
                 account_no = int(input("Enter your User ID given by the company: "))
@@ -33,15 +33,22 @@ while True:
             except ValueError:
                 print("Invalid input. Please enter a numeric value for Passkey.")
         
+        while True:
+            try:
+                phone_no = int(input("Enter your phone number: "))
+                break
+            except ValueError:
+                print("Invalid input. Please enter a valid phone number.")
+
         try:
-            SQL_insert = "INSERT INTO Log_in (cust_name, account_no, password) VALUES (%s, %s, %s)"
-            mycursor.execute(SQL_insert, (cust_name, account_no, password))
+            SQL_insert = "INSERT INTO Log_in (cust_name, account_no, password, phone_no) VALUES (%s, %s, %s, %s)"
+            mycursor.execute(SQL_insert, (cust_name, account_no, password, phone_no))
             conn.commit()
             print("Account Created Successfully")
         except Error as e:
             print(f"Error creating account: {e}")
 
-    #lLOGIN
+    #LOGIN
     def log_in():
         print("\nEnter your Credentials")
         cust_name = input("Enter your name: ")
@@ -66,77 +73,61 @@ while True:
             
             if user_data:
                 print("\nWELCOME TO USTP OMNICHARGE CDO\n")
-                user_dashboard()
+                user_dashboard(user_data)
             else:
                 print("Invalid Credentials, please try again.")
         except Error as e:
             print(f"Error logging in: {e}")
+
     #DASHBOARD
-    def user_dashboard():
+    def user_dashboard(user_data):
         while True:
             print("""
-            TO SEE employee list, press              : 1
-            TO UPDATE DETAILS of employee, press     : 2
-            TO SEE consumer details, press           : 3
-            TO PAY the bill, press                   : 4
-            TO EXIT, press                           : 5
-            TO RATE US, press                        : 6
+            TO SEE your details, press              : 1
+            TO PAY the bill, press                   : 2
+            TO EXIT, press                           : 3
+            TO RATE US, press                        : 4
             """)
             try:
                 choice = int(input("Enter your choice: "))
                 if choice == 1:
-                    show_employees()
+                    show_consumer_details(user_data)
                 elif choice == 2:
-                    update_employee()
+                    pay_bill(user_data)
                 elif choice == 3:
-                    show_consumer_details()
-                elif choice == 4:
-                    pay_bill()
-                elif choice == 5:
                     print("Thank you for visiting.")
                     break
-                elif choice == 6:
+                elif choice == 4:
                     rate_service()
                 else:
                     print("Invalid choice, please try again.")
             except ValueError:
-                print("Invalid input. Please enter a number between 1 and 6.")
-    #EMPLOYEES
-    def show_employees():
-        try:
-            mycursor.execute("SELECT * FROM Log_in")
-            employees = mycursor.fetchall()
-            print(f"Total number of employees: {len(employees)}")
-            print("Details of all employees are arranged as User Name / ID / Passkey")
-            for employee in employees:
-                print(employee)
-            print("Visit again!")
-        except Error as e:
-            print(f"Error fetching employee details: {e}")
+                print("Invalid input. Please enter a number between 1 and 4.")
 
-    def update_employee():
+    def show_consumer_details(user_data):
         try:
-            emp_name = input("Enter current name: ")
-            new_name = input("Enter new name: ")
-            update_query = "UPDATE Log_in SET cust_name = %s WHERE cust_name = %s"
-            mycursor.execute(update_query, (new_name, emp_name))
-            conn.commit()
-            print("Your details are successfully updated.")
-        except Error as e:
-            print(f"Error updating employee details: {e}")
+            # Display personal information
+            print("\n--- Consumer Details ---")
+            print(f"Name: {user_data[0]}")
+            print(f"Customer ID: {user_data[1]}")
+            print(f"Phone Number: {user_data[3]}")  # user_data[3] should contain phone number
+            
+            # Fetch payment history
+            mycursor.execute("SELECT * FROM consumer_details WHERE account_no = %s", (user_data[1],))
+            payment_history = mycursor.fetchall()
 
-    def show_consumer_details():
-        try:
-            mycursor.execute("SELECT * FROM consumer_details")
-            consumer_data = mycursor.fetchall()
-            print(f"Total number of records: {len(consumer_data)}")
-            for row in consumer_data:
-                print(row)
-            print("Visit again!")
+            if payment_history:
+                print("\n--- Payment History ---")
+                for payment in payment_history:
+                    print(f"Units Consumed: {payment[1]}, Bill Amount: {payment[3]:.2f}, Date: {payment[4]}")
+            else:
+                print("No payment history found.")
+                
+            print("\nVisit again!")
         except Error as e:
             print(f"Error fetching consumer details: {e}")
 
-    def pay_bill():
+    def pay_bill(user_data):
         billrate = 11.42  # Cost per unit in the electricity bill
         
         try:
@@ -146,9 +137,6 @@ while True:
             
             # Calculate the total bill based on units consumed
             total_bill = units * billrate
-            
-            # Get the consumer's phone number
-            phone_no = int(input("Enter Consumer phone number: "))
             
             # Display the bill amount to be paid
             print(f"\n--- Bill Calculation ---")
@@ -161,15 +149,14 @@ while True:
             while True:
                 payment = input("Do you wish to proceed with the payment? (yes/no): ").lower()
                 if payment == 'yes':
-                    # Insert the bill data into the database
-                    SQL_insert = "INSERT INTO consumer_details (f_name, units, bill, phone_no) VALUES (%s, %s, %s, %s)"
-                    mycursor.execute(SQL_insert, (f_name, units, total_bill, phone_no))
+                    # Insert the bill data into the database, assuming `account_no` is part of the user data
+                    SQL_insert = "INSERT INTO consumer_details (account_no, f_name, units, bill, phone_no) VALUES (%s, %s, %s, %s, %s)"
+                    mycursor.execute(SQL_insert, (user_data[1], f_name, units, total_bill, user_data[3]))
                     conn.commit()
                     
                     # Display receipt after payment
                     print(f"\n--- Payment Receipt ---")
                     print(f"Consumer Name: {f_name}")
-                    print(f"Consumer Phone: {phone_no}")
                     print(f"Units Consumed: {units} units")
                     print(f"Bill Rate: {billrate} per unit")
                     print(f"Total Amount Due: {total_bill:.2f}")
@@ -185,8 +172,6 @@ while True:
             print("Invalid input. Please enter numeric values for units, bill, and phone number.")
         except Error as e:
             print(f"Error recording bill: {e}")
-
-
 
     def rate_service():
         try:
