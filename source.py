@@ -205,8 +205,22 @@ def pay_bill_menu(customer):
 def update_details_menu(customer):
     while True:
         print_banner("Update Your Details")
-        new_phone = input("Enter your new phone number: ").strip()
-        new_address = input("Enter your new address: ").strip()
+
+        while True:
+            new_phone = input("Enter your new phone number (numbers only): ").strip()
+            if not new_phone:
+                print_message("Phone number cannot be blank. Please try again.")
+            elif not new_phone.isdigit():
+                print_message("Phone number must contain only digits. Please try again.")
+            else:
+                break
+
+        while True:
+            new_address = input("Enter your new address: ").strip()
+            if not new_address:
+                print_message("Address cannot be blank. Please try again.")
+            else:
+                break
 
         customer.phone_no = new_phone
         customer.address = new_address
@@ -218,6 +232,7 @@ def update_details_menu(customer):
             break
         else:
             print_message("Invalid choice. Please select '1' to go back.")
+
 
 # Main
 system = ElectricityBillingSystem()
