@@ -1,4 +1,8 @@
 from datetime import datetime
+from receipt_generator import generate_receipt_pdf
+from datetime import datetime, timedelta
+import pandas as pd
+
 
 #banner, pang design
 def print_banner(title):
@@ -26,10 +30,12 @@ class Customer:
         self.bills = []
 
 class Bill:
-    def __init__(self, units, bill_amount, payment_date):
+    def __init__(self, units, bill_amount, payment_date, due_date, next_due_date):
         self.units = units
         self.bill_amount = bill_amount
         self.payment_date = payment_date
+        self.due_date = due_date
+        self.next_due_date = next_due_date
 
 class ElectricityBillingSystem:
     def __init__(self):
@@ -158,38 +164,48 @@ def view_details_menu(customer):
         else:
             print_message("Invalid choice. Please select '1' to go back.")
 
+TAX_RATE = 12 #grabi kana pilipins
+
 def pay_bill_menu(customer):
     print_banner("Pay Your Bill")
-    bill_rate = 11.42  # Cost per unit in kWh
+    
+    data = pd.read_csv("random_kwh_consumption_due_dates.csv")
+    
+    random_row = data.sample(n=1).iloc[0]
+    units = random_row['kWh_Consumed']
+    due_date = random_row['Due_Date']
+    
+    bill_rate = 11.42 
     exit_loop = False
     
     while not exit_loop:
-        try:
-            print("Please type 'back' to go back")
-            units = input("Enter the units consumed (kWh): ").strip()
-            if units.lower() == 'back':
-                break
-            units = float(units)
-            
-            total_bill = units * bill_rate
-            payment_date = datetime.now().date()
+        total_bill = units * bill_rate
+        tax_amount = total_bill * (TAX_RATE / 100)
+        total_with_tax = total_bill + tax_amount
+        payment_date = datetime.now().date()
 
-            print("\n--- Bill Calculation ---")
-            print(f"Units Consumed: {units} kWh")
-            print(f"Bill Rate     : {bill_rate} per unit")
-            print(f"Total Bill    : {total_bill:.2f}")
-            print(f"Payment Date  : {payment_date}")
-            print_separator()
-        except ValueError:
-            print("Please enter a numeric value or tpye 'back' to exit")
-            continue
+        next_due_date = (datetime.strptime(due_date, '%Y-%m-%d') + timedelta(days=30)).date()
+
+        print("\n--- Bill Calculation ---")
+        print(f"Units Consumed: {units} kWh")
+        print(f"Bill Rate     : {bill_rate} per unit")
+        print(f"VAT ({TAX_RATE}%): {tax_amount:.2f}")
+        print(f"Total Bill: {total_with_tax:.2f}")
+        print(f"Payment Date  : {payment_date}")
+        print(f"Due Date      : {due_date}")
+        print(f"Next Due Date : {next_due_date}")
+        print_separator()
+        
         while True:
             print("1. Confirm Payment")
             print("2. Go Back")
             confirm = input("Enter your choice: ").lower()
             if confirm == '1':
-                new_bill = Bill(units, total_bill, payment_date)
+                new_bill = Bill(units, total_with_tax, payment_date, due_date, next_due_date)
                 customer.bills.append(new_bill)
+                
+                generate_receipt_pdf(customer, units, total_with_tax, payment_date, TAX_RATE, due_date, next_due_date)
+                
                 print_message("Payment Successful! Thank you for using our service.")
                 exit_loop = True
                 break
@@ -232,7 +248,6 @@ def update_details_menu(customer):
             break
         else:
             print_message("Invalid choice. Please select '1' to go back.")
-
 
 # Main
 system = ElectricityBillingSystem()
