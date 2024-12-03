@@ -37,9 +37,8 @@ def generate_receipt_pdf(customer, units, total_bill, payment_date, tax_rate, du
     
     c.setFont("Courier", 8)
     c.drawString(50, 490, f"Units Consumed: {units} kWh")
-    c.drawString(50, 470, f"Total Bill: {total_bill:.2f} PHP")
     c.drawString(50, 450, f"VAT ({tax_rate}%): {tax_amount:.2f} PHP")
-    c.drawString(50, 430, f"Total with Tax: {total_with_tax:.2f} PHP")
+    c.drawString(50, 430, f"Total: {total_with_tax:.2f} PHP")
     
     c.drawString(50, 410, f"Payment Date: {payment_date}")
     c.drawString(50, 390, f"Due Date: {due_date}")

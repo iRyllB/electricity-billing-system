@@ -1,6 +1,5 @@
-from datetime import datetime
-from receipt_generator import generate_receipt_pdf
 from datetime import datetime, timedelta
+from receipt_generator import generate_receipt_pdf
 import pandas as pd
 
 
