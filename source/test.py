@@ -1,4 +1,4 @@
-def pay_bill_menu(customer):
+'''def pay_bill_menu(customer):
     TAX_RATE = 12  # VAT rate
     print_banner("Pay Your Bill")
     data = pd.read_csv("random_kwh_consumption_due_dates.csv")
@@ -82,3 +82,4 @@ def pay_bill_menu(customer):
         else:
             print("Invalid input, 1 - 2 only")
             continue
+        '''

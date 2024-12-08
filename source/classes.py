@@ -33,7 +33,7 @@ class ElectricityBillingSystem:
     
     def create_default_customers(self):
         self.create_account(
-            "bryll123", "gwapoko@gmail.com", "Bryll", "Pon", "bryll123", "09123456789", "123 Main St")
+            "wew123", "gwapoko@gmail.com", "Bryll", "Pon", "wew123", "09123456789", "123 Cornelia St")
 
     def log_in(self, username, password):
         for customer in self.customers.values():

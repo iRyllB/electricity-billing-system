@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from receipt_generator import generate_receipt_pdf
 import pandas as pd
 import re
-from classes import Customer, Bill, ElectricityBillingSystem  # Importing the classes from classes.py
+from classes import Customer, Bill, ElectricityBillingSystem
 
 # Banner and UI Design
 def print_banner(title):
@@ -35,7 +35,9 @@ def check_if_account_exists(username, email, existing_accounts):
         if customer.username == username or customer.email == email:
             return True
     return False
-
+#################################################################################################################
+#USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT
+#################################################################################################################
 # Account Creation
 def create_account(system):
     print_banner("Create Your Account")
@@ -104,7 +106,7 @@ def create_account(system):
     account_no = system.create_account(username, email, first_name, last_name, password, phone_no, address)
     print_message(f"Account Created Successfully! Your Account Number: {account_no}")
 
-# Login and Dashboard
+# Login
 def log_in(system):
     print_banner("Log In to Your Account")
     print("Type 'back' at any time to return to the main menu.")
@@ -122,7 +124,9 @@ def log_in(system):
         user_dashboard(system, customer)
     else:
         print_message("Invalid credentials. Please try again.")
-
+#################################################################################################################
+#DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD
+#################################################################################################################
 # User Dashboard
 def user_dashboard(system, customer):
     while True:
@@ -149,7 +153,7 @@ def user_dashboard(system, customer):
         except ValueError:
             print_message("Invalid input. Please enter a number between 1 and 4.")
 
-# Submenus and Other Functions
+#View Details
 def view_details_menu(customer):
     while True:
         print_banner("Consumer Details")
@@ -174,6 +178,7 @@ def view_details_menu(customer):
         else:
             print_message("Invalid choice. Please select '1' to go back.")
 
+#Pay Bill
 def pay_bill_menu(customer):
     TAX_RATE = 12  # VAT rate
     print_banner("Pay Your Bill")
@@ -181,47 +186,82 @@ def pay_bill_menu(customer):
     random_row = data.sample(n=1).iloc[0]
     units = random_row['kWh_Consumed']
     due_date = random_row['Due_Date']
-    bill_rate = 11.42  # Price per in currency
     exit_loop = False
     
-    while not exit_loop:
-        total_bill = units * bill_rate
-        tax_amount = total_bill * (TAX_RATE / 100)
-        total_with_tax = total_bill + tax_amount
-        payment_date = datetime.now().date()
-        next_due_date = (datetime.strptime(due_date, '%Y-%m-%d') + timedelta(days=30)).date()
+    generation_charge = 11.42  # Bill rate
+    transmission_charge = 0.8786
+    sysloss_charge = 1.045
+    distribution_charge = 0.4613
+    supply_charge = 0.5376
+    metering_charge = 0.3205
+    rp_tax_provision = 0.0105
+    franchi_tax_cur = 0.0022
+    business_tax_cur = 0.0085
+    
+    total_bill = units * generation_charge
+    
+    total_bill += (transmission_charge + sysloss_charge +
+                   distribution_charge + supply_charge + metering_charge +
+                   rp_tax_provision + franchi_tax_cur + business_tax_cur)
+    
+    total_bill_with_vat = total_bill * (1 + TAX_RATE / 100)
+    
+    payment_date = datetime.now().date()
+    next_due_date = (datetime.strptime(due_date, '%Y-%m-%d') + timedelta(days=30)).date()
 
-        print("\n--- Bill Calculation ---")
-        print(f"Units Consumed: {units} kWh")
-        print(f"Bill Rate     : {bill_rate} per unit")
-        print(f"VAT ({TAX_RATE}%): {tax_amount:.2f}")
-        print(f"Total Bill: {total_with_tax:.2f}")
-        print(f"Payment Date  : {payment_date}")
-        print(f"Due Date      : {due_date}")
-        print(f"Next Due Date : {next_due_date}")
-        print_separator()
-        
-        while True:
-            print("1. Confirm Payment")
-            print("2. Go Back")
-            confirm = input("Enter your choice: ").lower()
-            if confirm == '1':
-                new_bill = Bill(units, total_with_tax, payment_date, due_date, next_due_date)
-                customer.bills.append(new_bill)
-                
-                generate_receipt_pdf(customer, units, total_with_tax, payment_date, TAX_RATE, due_date, next_due_date)
-                
-                print_message("Payment Successful! Thank you for using our service.")
-                exit_loop = True
-                break
-            elif confirm == '2':
-                print_message("Payment canceled.")
-                exit_loop = True
-                break
-            else:
-                print("Invalid input, 1 - 2 only")
-                continue
+    print("\n---------------- Bill Calculation ----------------")
+    print(f"{'Units Consumed':<27}: {units} kWh")
+    
+    print("\nGeneration:")
+    print(f"  {'Genr System':<25}: {generation_charge:<10.2f}")
+    
+    print("Transmission:")
+    print(f"  {'Trans System':<25}: {transmission_charge:<10.4f}")
+    print(f"  {'SysLoss Chg':<25}: {sysloss_charge:<10.3f}")
+    
+    print("Distribution:")
+    print(f"  {'Dist System':<25}: {distribution_charge:<10.4f}")
+    
+    print("Supply Charges:")
+    print(f"  {'Supp System':<25}: {supply_charge:<10.4f}")
+    
+    print("Metering Charges:")
+    print(f"  {'Meter System':<25}: {metering_charge:<10.4f}")
+    
+    print("Universal Charges:")
+    print(f"  {'RP Tax Provision':<25}: {rp_tax_provision:<10.4f}")
+    print(f"  {'Franchi Tax Cur':<25}: {franchi_tax_cur:<10.4f}")
+    print(f"  {'Business Tax Cur':<25}: {business_tax_cur:<10.4f}")
+    
+    print(f"\n{'VAT (12%)':<27}: {total_bill_with_vat - total_bill:<10.2f}")
+    print(f"{'Total Bill':<27}: {total_bill_with_vat:<10.2f}")
+    print(f"{'Payment Date':<27}: {payment_date}")
+    print(f"{'Due Date':<27}: {due_date}")
+    print(f"{'Next Due Date':<27}: {next_due_date}")
+    print_separator()
 
+    while True:
+        print("1. Confirm Payment")
+        print("2. Go Back")
+        confirm = input("Enter your choice: ").lower()
+        if confirm == '1':
+            new_bill = Bill(units, total_bill_with_vat, payment_date, due_date, next_due_date)
+            customer.bills.append(new_bill)
+            
+            generate_receipt_pdf(customer, units, total_bill_with_vat, payment_date, TAX_RATE, due_date, next_due_date)
+            
+            print_message("Payment Successful! Thank you for using our service.")
+            exit_loop = True
+            break
+        elif confirm == '2':
+            print_message("Payment canceled.")
+            exit_loop = True
+            break
+        else:
+            print("Invalid input, 1 - 2 only")
+            continue
+
+#Update Details
 def update_details_menu(customer):
     while True:
         print_banner("Update Your Details")
@@ -249,7 +289,9 @@ def update_details_menu(customer):
 
         print_message("Your details have been updated successfully!")
         break
-
+#################################################################################################################
+#MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN
+#################################################################################################################
 # Main Loop
 system = ElectricityBillingSystem()
 
