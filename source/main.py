@@ -1,42 +1,13 @@
 from datetime import datetime, timedelta
 from receipt_generator import generate_receipt_pdf
 import pandas as pd
-import re
+from bill_printer import print_bill_details
 from classes import Customer, Bill, ElectricityBillingSystem
+from ui import print_banner, print_message, print_separator
+from validation import is_valid_email, is_valid_password, is_valid_phone_number, check_if_account_exists
 
-# Banner and UI Design
-def print_banner(title):
-    print("\n" + "=" * 50)
-    print(f"{title.center(50)}")
-    print("=" * 50)
-
-def print_separator():
-    print("-" * 50)
-
-def print_message(message):
-    print("\n" + f"{message}".center(50))
-    print()
-
-# Validation Functions
-def is_valid_password(password):
-    return (len(password) >= 5 and 
-            re.search(r"[a-z]", password) and 
-            re.search(r"[0-9]", password))
-
-def is_valid_email(email):
-    email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    return re.match(email_regex, email) is not None
-
-def is_valid_phone_number(phone_no):
-    return phone_no.isdigit() and len(phone_no) == 11
-
-def check_if_account_exists(username, email, existing_accounts):
-    for customer in existing_accounts.values():
-        if customer.username == username or customer.email == email:
-            return True
-    return False
 #################################################################################################################
-#USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT
+# USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT
 #################################################################################################################
 # Account Creation
 def create_account(system):
@@ -124,17 +95,18 @@ def log_in(system):
         user_dashboard(system, customer)
     else:
         print_message("Invalid credentials. Please try again.")
+
 #################################################################################################################
-#DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD
+# DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD DASHBOARD
 #################################################################################################################
 # User Dashboard
 def user_dashboard(system, customer):
     while True:
         print_banner("User Dashboard")
-        print("""
-        1. View Details
-        2. Pay Bill
-        3. Update Details
+        print(""" 
+        1. View Details 
+        2. Pay Bill 
+        3. Update Details 
         4. Exit
         """)
         try:
@@ -153,7 +125,7 @@ def user_dashboard(system, customer):
         except ValueError:
             print_message("Invalid input. Please enter a number between 1 and 4.")
 
-#View Details
+# View Details
 def view_details_menu(customer):
     while True:
         print_banner("Consumer Details")
@@ -178,7 +150,7 @@ def view_details_menu(customer):
         else:
             print_message("Invalid choice. Please select '1' to go back.")
 
-#Pay Bill
+# Pay Bill
 def pay_bill_menu(customer):
     TAX_RATE = 12  # VAT rate
     print_banner("Pay Your Bill")
@@ -209,36 +181,11 @@ def pay_bill_menu(customer):
     payment_date = datetime.now().date()
     next_due_date = (datetime.strptime(due_date, '%Y-%m-%d') + timedelta(days=30)).date()
 
-    print("\n---------------- Bill Calculation ----------------")
-    print(f"{'Units Consumed':<27}: {units} kWh")
-    
-    print("\nGeneration:")
-    print(f"  {'Genr System':<25}: {generation_charge:<10.2f}")
-    
-    print("Transmission:")
-    print(f"  {'Trans System':<25}: {transmission_charge:<10.4f}")
-    print(f"  {'SysLoss Chg':<25}: {sysloss_charge:<10.3f}")
-    
-    print("Distribution:")
-    print(f"  {'Dist System':<25}: {distribution_charge:<10.4f}")
-    
-    print("Supply Charges:")
-    print(f"  {'Supp System':<25}: {supply_charge:<10.4f}")
-    
-    print("Metering Charges:")
-    print(f"  {'Meter System':<25}: {metering_charge:<10.4f}")
-    
-    print("Universal Charges:")
-    print(f"  {'RP Tax Provision':<25}: {rp_tax_provision:<10.4f}")
-    print(f"  {'Franchi Tax Cur':<25}: {franchi_tax_cur:<10.4f}")
-    print(f"  {'Business Tax Cur':<25}: {business_tax_cur:<10.4f}")
-    
-    print(f"\n{'VAT (12%)':<27}: {total_bill_with_vat - total_bill:<10.2f}")
-    print(f"{'Total Bill':<27}: {total_bill_with_vat:<10.2f}")
-    print(f"{'Payment Date':<27}: {payment_date}")
-    print(f"{'Due Date':<27}: {due_date}")
-    print(f"{'Next Due Date':<27}: {next_due_date}")
-    print_separator()
+    # Call the function from bill_printer.py to print the bill details
+    print_bill_details(units, generation_charge, transmission_charge, sysloss_charge, 
+                       distribution_charge, supply_charge, metering_charge, rp_tax_provision, 
+                       franchi_tax_cur, business_tax_cur, total_bill_with_vat, total_bill, 
+                       due_date, payment_date, next_due_date, TAX_RATE)
 
     while True:
         print("1. Confirm Payment")
@@ -261,7 +208,7 @@ def pay_bill_menu(customer):
             print("Invalid input, 1 - 2 only")
             continue
 
-#Update Details
+# Update Details
 def update_details_menu(customer):
     while True:
         print_banner("Update Your Details")
@@ -289,6 +236,7 @@ def update_details_menu(customer):
 
         print_message("Your details have been updated successfully!")
         break
+
 #################################################################################################################
 #MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN
 #################################################################################################################
