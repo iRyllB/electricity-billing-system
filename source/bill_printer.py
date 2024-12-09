@@ -31,4 +31,4 @@ def print_bill_details(units, generation_charge, transmission_charge, sysloss_ch
     print(f"{'Payment Date':<27}: {payment_date}")
     print(f"{'Due Date':<27}: {due_date}")
     print(f"{'Next Due Date':<27}: {next_due_date}")
-    print(" ")
+    print("")
