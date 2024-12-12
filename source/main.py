@@ -3,8 +3,8 @@ from receipt_generator import generate_receipt_pdf
 import pandas as pd
 from bill_printer import print_bill_details
 from classes import Customer, Bill, ElectricityBillingSystem
-from ui import print_banner, print_message, print_separator
-from validation import is_valid_email, is_valid_password, is_valid_phone_number, check_if_account_exists
+from ui_validation import is_valid_email, is_valid_password, is_valid_phone_number, check_if_account_exists, print_message, print_banner, print_separator
+from export import export_payment_history
 
 #################################################################################################################
 # USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT USER-MANAGEMENT
@@ -107,7 +107,8 @@ def user_dashboard(system, customer):
         1. View Details 
         2. Pay Bill 
         3. Update Details 
-        4. Exit
+        4. Export Payment History
+        5. Exit
         """)
         try:
             choice = int(input("Enter your choice: "))
@@ -118,12 +119,14 @@ def user_dashboard(system, customer):
             elif choice == 3:
                 update_details_menu(customer)
             elif choice == 4:
+                export_payment_history(customer)
+            elif choice == 5:
                 print_message("Thank you for using USTP OmniCharge!")
                 break
             else:
                 print_message("Invalid choice, please try again.")
         except ValueError:
-            print_message("Invalid input. Please enter a number between 1 and 4.")
+            print_message("Invalid input. Please enter a number between 1 and 5.")
 
 # View Details
 def view_details_menu(customer):
@@ -181,7 +184,6 @@ def pay_bill_menu(customer):
     payment_date = datetime.now().date()
     next_due_date = (datetime.strptime(due_date, '%Y-%m-%d') + timedelta(days=30)).date()
 
-    # Call the function from bill_printer.py to print the bill details
     print_bill_details(units, generation_charge, transmission_charge, sysloss_charge, 
                        distribution_charge, supply_charge, metering_charge, rp_tax_provision, 
                        franchi_tax_cur, business_tax_cur, total_bill_with_vat, total_bill, 
