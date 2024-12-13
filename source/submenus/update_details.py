@@ -1,4 +1,4 @@
-from ui_validation import print_banner, is_valid_phone_number, print_message
+from ui_validation import print_banner, is_valid_phone_number, print_message, is_valid_email
 # Update Details
 def update_details_menu(customer):
     while True:
@@ -28,8 +28,8 @@ def update_details_menu(customer):
             new_email = input("Enter your new Email address: ").strip()
             if new_address.lower() == 'back':
                 return
-            if not new_email:
-                print_message("Error: Email cannot be blank. Please try again.")
+            if not is_valid_email(new_email):
+                print_message("Error: Email is invalid. Please try again.")
             else:
                 break
 

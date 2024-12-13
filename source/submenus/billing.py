@@ -12,7 +12,7 @@ def pay_bill_menu(customer):
     TAX_RATE = 12  # VAT rate
     print_banner("Pay Your Bill")
 
-    #automates the generation of consumption and due date on file "generate_data.py"
+#automates the generation of consumption and due date on file "generate_data.py" so that our data will be up to date
     data_file = "random_kwh_consumption_due_dates.csv"
     if not os.path.exists(data_file):
         subprocess.run(["python", "generate_data.py"]) 
