@@ -15,3 +15,10 @@ A simple Python-based application to calculate electricity bills based on custom
    ```bash
    git clone https://github.com/your-username/electricity-billing-system.git
    cd electricity-billing-system
+## How To Use
+1. Clone Repository:
+   ```bash
+   git clone https://github.com/your-username/electricity-billing-system.git
+   cd electricity-billing-system
+2. Go to main.py
+3. Execute
