@@ -10,7 +10,6 @@ def export_payment_history(customer):
         print_message("No payment history to export.")
         return
 
-    # Prepare the data to be exported
     data = [{
         "Units Consumed": bill.units,
         "Bill Amount": round(bill.bill_amount, 2),
@@ -25,7 +24,6 @@ def export_payment_history(customer):
     csv_filename = f"{customer.username}_payment_history.csv"
     df.to_csv(csv_filename, index=False)
 
-    # Change page size to landscape
     pdf_filename = f"{customer.username}_payment_history.pdf"
     c = canvas.Canvas(pdf_filename, pagesize=landscape(letter))
     width, height = landscape(letter)
@@ -37,22 +35,19 @@ def export_payment_history(customer):
     # Table headers
     x_start = 50
     y_start = height - 80
-    row_height = 18  # Reduced row height
-    column_widths = [120, 120, 130, 100, 100, 120]  # Adjust column widths
+    row_height = 18 
+    column_widths = [120, 120, 130, 100, 100, 120]  
     headers = df.columns.tolist()
 
-    # Draw headers
     for i, header in enumerate(headers):
         c.drawString(x_start + sum(column_widths[:i]), y_start, header)
 
     y_position = y_start - row_height
-    # Draw table content
     for _, row in df.iterrows():
         for i, value in enumerate(row):
             c.drawString(x_start + sum(column_widths[:i]), y_position, str(value))
         y_position -= row_height
 
-    # Add link to the CSV file
     c.setFont("Helvetica", 10)
     c.setFillColorRGB(0, 0, 1)  
     c.drawString(50, y_position - 20, "Click here to download the CSV file:")

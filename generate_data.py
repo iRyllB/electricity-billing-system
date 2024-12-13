@@ -1,4 +1,4 @@
-#generate csv file with random values
+#generates the csv file "random_kwh_consumption" with random values
 import random
 from datetime import datetime, timedelta
 import pandas as pd

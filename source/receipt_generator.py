@@ -61,7 +61,7 @@ def generate_receipt_pdf(customer, units, total_bill, payment_date, tax_rate, du
     c.drawString(50, 150, f"Business Tax Cur: {business_tax_cur:.4f} PHP")
     
     c.setFont("Courier-Bold", 10)
-    c.setFillColorRGB(1, 0, 0)  # Red for VAT and total amount
+    c.setFillColorRGB(1, 0, 0) 
     c.drawString(50, 130, f"VAT ({tax_rate}%): {tax_amount:.2f} PHP")
     c.setFont("Courier-Bold", 12)
     c.drawString(50, 110, f"NET TOTAL: {total_with_tax:.2f} PHP")
@@ -84,5 +84,5 @@ def generate_receipt_pdf(customer, units, total_bill, payment_date, tax_rate, du
     # Automatically open the PDF
     if os.name == 'nt':  # For Windows
         webbrowser.open(f'file:///{os.path.abspath(pdf_filename)}')
-    else:  # For macOS/Linux
+    else:  # For MAC/Linux
         webbrowser.open(f'file://{os.path.abspath(pdf_filename)}')

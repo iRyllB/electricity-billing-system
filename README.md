@@ -3,9 +3,11 @@
 A simple Python-based application to calculate electricity bills based on customer usage. This project demonstrates basic Python programming skills, including class structures and input handling.
 
 ## Features
-- Allows users to input customer information and electricity usage.
+- Allows users to create an account and login.
 - Calculates the bill based on a rate per kilowatt-hour (kWh).
 - Outputs a detailed billing statement with customer name, units consumed, and total cost.
+- Users are able to export their billing history through a csv file.
+- Generates a reciept after the payment.
 
 ## Requirements
 - Python 3.6 or higher
@@ -21,4 +23,4 @@ A simple Python-based application to calculate electricity bills based on custom
    git clone https://github.com/iRyllB/electricity-billing-system.git
    cd electricity-billing-system
 2. Go to main.py
-3. Execute
+3. Execute/Run
