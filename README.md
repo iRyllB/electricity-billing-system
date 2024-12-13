@@ -2,6 +2,9 @@
 
 A simple Python-based application to calculate electricity bills based on customer usage. This project demonstrates basic Python programming skills, including class structures and input handling.
 
+## Why are we using CUI instead of GUI?
+- The main goal of this project is to focus on the core functionality of the electricity billing system, such as customer management, bill calculation, and payment handling. A CUI (Command-line User Interface) was chosen to keep things simple and avoid unnecessary complexity. Adding a GUI would require more time and effort to implement features that are not directly related to the core functionality
+
 ## Features
 - Allows users to create an account and login.
 - Calculates the bill based on a rate per kilowatt-hour (kWh).

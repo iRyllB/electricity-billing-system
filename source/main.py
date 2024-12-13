@@ -20,7 +20,7 @@ def main():
                 log_in(system)
             elif choice == 3:
                 print_message("Thank you for using USTP OmniCharge!")
-                break
+                break 
             else:
                 print_message("Invalid choice, please try again.")
         except ValueError:
